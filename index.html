@@ -1,0 +1,477 @@
+from pathlib import Path
+
+html = r'''<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="KAYAL.DEV — Kayal Vizhi | Cybersecurity, developer and creative projects.">
+<title>KAYAL.DEV — Kayal Vizhi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root{
+  --bg:#05060a;--bg2:#090b12;--panel:rgba(15,18,28,.62);--panel-solid:#10131d;
+  --text:#f6f7fb;--muted:#929aae;--line:rgba(255,255,255,.1);
+  --mint:#73f6c7;--violet:#9c8cff;--cyan:#72d9ff;--pink:#ff82b2;
+  --shadow:0 25px 80px rgba(0,0,0,.45);--radius:26px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:"Space Grotesk",sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+body.no-scroll{overflow:hidden}
+a{color:inherit;text-decoration:none}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+::selection{background:var(--mint);color:#04100c}
+
+/* LOADER */
+#loader{position:fixed;inset:0;background:#05060a;display:grid;place-items:center;z-index:9999;transition:opacity .7s,visibility .7s}
+#loader.hide{opacity:0;visibility:hidden}
+.loader-inner{text-align:center}
+.loader-logo{font-size:2rem;font-weight:700;letter-spacing:-.07em}
+.loader-logo span{color:var(--mint)}
+.loader-line{width:180px;height:2px;background:#171b27;margin:20px auto;overflow:hidden}
+.loader-line i{display:block;height:100%;width:45%;background:var(--mint);animation:load 1.2s infinite ease-in-out}
+.loader-status{font:11px "DM Mono",monospace;color:var(--muted)}
+@keyframes load{0%{transform:translateX(-100%)}100%{transform:translateX(500%)}}
+
+/* BACKGROUND */
+#stars{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:-4}
+.grid{position:fixed;inset:0;z-index:-3;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:55px 55px;mask-image:linear-gradient(to bottom,black,transparent 78%)}
+.aurora{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:-2;opacity:.16;mix-blend-mode:screen}
+.a1{width:430px;height:430px;background:var(--mint);top:-170px;left:-100px;animation:floatA 12s ease-in-out infinite}
+.a2{width:500px;height:500px;background:var(--violet);right:-180px;top:25%;animation:floatB 15s ease-in-out infinite}
+.a3{width:330px;height:330px;background:var(--pink);left:25%;bottom:-200px;animation:floatA 18s ease-in-out infinite reverse}
+@keyframes floatA{50%{transform:translate(70px,60px) scale(1.12)}}
+@keyframes floatB{50%{transform:translate(-80px,30px) scale(.9)}}
+#cursorGlow{position:fixed;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(115,246,199,.11),transparent 68%);pointer-events:none;z-index:0;transform:translate(-50%,-50%);mix-blend-mode:screen}
+
+/* NAV */
+.nav{position:fixed;top:16px;left:50%;transform:translateX(-50%);width:min(1160px,calc(100% - 28px));height:64px;padding:0 13px 0 20px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:20px;background:rgba(7,9,15,.62);backdrop-filter:blur(22px);box-shadow:0 12px 50px rgba(0,0,0,.2);z-index:100}
+.brand{font-weight:700;font-size:1.18rem;letter-spacing:-.07em}.brand span{color:var(--mint)}
+.navlinks{display:flex;gap:4px}.navlinks a{color:var(--muted);font-size:.8rem;padding:9px 11px;border-radius:10px;transition:.25s}.navlinks a:hover,.navlinks a.active{color:var(--text);background:rgba(255,255,255,.06)}
+.navtools{display:flex;gap:7px}.tool{border:1px solid var(--line);background:rgba(255,255,255,.035);color:var(--text);border-radius:11px;padding:8px 10px}.tool:hover{border-color:var(--mint);color:var(--mint)}
+.menu{display:none}
+
+/* COMMON */
+.container{width:min(1160px,calc(100% - 32px));margin:auto}
+section{padding:125px 0;position:relative}
+.eyebrow{font:11px "DM Mono",monospace;letter-spacing:.16em;color:var(--mint);text-transform:uppercase;margin-bottom:12px}
+.section-head{display:flex;justify-content:space-between;gap:40px;align-items:end;margin-bottom:45px}
+.section-head h2{font-size:clamp(2.4rem,6vw,4.8rem);letter-spacing:-.075em;line-height:.95}
+.section-head p{max-width:440px;color:var(--muted);line-height:1.7}
+.reveal{opacity:0;transform:translateY(35px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1)}.reveal.show{opacity:1;transform:none}
+
+/* HERO */
+.hero{min-height:100vh;padding-top:155px;display:flex;align-items:center}
+.hero-layout{display:grid;grid-template-columns:1.18fr .82fr;gap:65px;align-items:center}
+.availability{display:inline-flex;align-items:center;gap:9px;padding:8px 12px;border:1px solid var(--line);background:rgba(255,255,255,.035);border-radius:999px;color:var(--muted);font:11px "DM Mono",monospace}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 0 rgba(115,246,199,.6);animation:pulse 1.8s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 10px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.hero h1{font-size:clamp(4.4rem,11vw,9.6rem);line-height:.82;letter-spacing:-.105em;margin:28px 0}
+.hero h1 .outline{color:transparent;-webkit-text-stroke:1.2px rgba(246,247,251,.7)}
+.hero h1 .gradient{background:linear-gradient(100deg,var(--mint),var(--cyan),var(--violet),var(--pink),var(--mint));background-size:300% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:gradient 7s linear infinite}
+@keyframes gradient{to{background-position:300% center}}
+.hero-desc{max-width:650px;color:var(--muted);font-size:1.06rem}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:30px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:13px 17px;border-radius:13px;border:1px solid var(--line);transition:transform .25s,box-shadow .25s,border-color .25s}
+.btn:hover{transform:translateY(-3px);border-color:var(--mint);box-shadow:0 12px 30px rgba(115,246,199,.1)}
+.btn.primary{background:var(--mint);color:#06100c;border-color:transparent;font-weight:700}
+.magnetic{will-change:transform}
+.hero-note{margin-top:38px;color:#5e6678;font:11px "DM Mono",monospace;letter-spacing:.06em}
+
+/* HERO ORBIT */
+.hero-visual{height:470px;display:grid;place-items:center;position:relative}
+.orbit{width:350px;height:350px;border:1px solid rgba(255,255,255,.11);border-radius:50%;position:relative;animation:spin 24s linear infinite}
+.orbit:before,.orbit:after{content:"";position:absolute;inset:34px;border:1px dashed rgba(255,255,255,.09);border-radius:50%}
+.orbit:after{inset:85px;border-style:solid;border-color:rgba(115,246,199,.13)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.core{position:absolute;inset:50%;width:115px;height:115px;transform:translate(-50%,-50%);border-radius:35%;background:radial-gradient(circle at 35% 30%,#fff, var(--mint) 10%,#1a8f73 42%,#09130f 72%);box-shadow:0 0 80px rgba(115,246,199,.35),inset 0 0 40px rgba(255,255,255,.2);animation:core 4s ease-in-out infinite}
+@keyframes core{50%{transform:translate(-50%,-50%) rotate(45deg) scale(1.06);border-radius:50%}}
+.node{position:absolute;width:13px;height:13px;background:var(--mint);border-radius:50%;box-shadow:0 0 20px var(--mint)}
+.n1{top:9%;left:22%}.n2{top:38%;right:-6%}.n3{bottom:8%;left:27%}.n4{top:49%;left:-6%;background:var(--violet);box-shadow:0 0 20px var(--violet)}
+.visual-label{position:absolute;padding:10px 12px;border:1px solid var(--line);background:rgba(9,11,18,.7);backdrop-filter:blur(15px);border-radius:12px;font:10px "DM Mono",monospace;color:var(--muted)}
+.label1{top:8%;right:0}.label2{bottom:7%;left:0}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat{padding:28px;border:1px solid var(--line);border-radius:22px;background:var(--panel);backdrop-filter:blur(15px);transition:.35s}
+.stat:hover{transform:translateY(-7px);border-color:rgba(115,246,199,.35)}
+.stat strong{display:block;font-size:2.3rem;letter-spacing:-.07em}.stat span{font-size:.78rem;color:var(--muted)}
+
+/* ABOUT */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.glass{border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(18px);border-radius:var(--radius);padding:30px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.glass:before{content:"";position:absolute;width:160px;height:160px;background:var(--mint);filter:blur(90px);opacity:.06;right:-80px;top:-80px}
+.glass h3{font-size:1.35rem;margin-bottom:10px}.glass p{color:var(--muted)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}.chip{font:10px "DM Mono",monospace;color:var(--muted);border:1px solid var(--line);padding:7px 10px;border-radius:999px}
+
+/* SKILLS */
+.skills{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.skill{padding:23px;border:1px solid var(--line);border-radius:20px;background:var(--panel);transition:.35s;position:relative;overflow:hidden}
+.skill:hover{transform:translateY(-5px) scale(1.01);border-color:rgba(156,140,255,.35)}
+.skill-head{display:flex;justify-content:space-between;margin-bottom:16px}.skill-head span{color:var(--muted);font:10px "DM Mono",monospace}
+.bar{height:5px;background:#1a1e29;border-radius:10px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--mint),var(--violet));border-radius:10px;transition:width 1.4s cubic-bezier(.2,.8,.2,1)}.skill.show .bar i{width:var(--w)}
+
+/* PROJECTS */
+.filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}.filter{padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--muted);font-size:.76rem}.filter.active,.filter:hover{background:var(--mint);color:#06100c;border-color:transparent}
+.projects{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.project{min-height:300px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .15s ease,border-color .3s;transform-style:preserve-3d}
+.project:hover{border-color:rgba(115,246,199,.35)}
+.project-top{display:flex;justify-content:space-between;color:var(--muted);font:10px "DM Mono",monospace}
+.project-number{color:var(--mint)}
+.project h3{font-size:1.75rem;letter-spacing:-.05em;margin:24px 0 9px}.project p{color:var(--muted);font-size:.88rem}
+.project-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:25px}.project-arrow{color:var(--mint);font-size:.8rem}
+
+/* TIMELINE */
+.timeline{position:relative;margin-left:10px;border-left:1px solid var(--line)}
+.event{position:relative;padding:0 0 42px 34px}.event:last-child{padding-bottom:0}.event:before{content:"";position:absolute;width:9px;height:9px;border-radius:50%;background:var(--mint);left:-5px;top:4px;box-shadow:0 0 18px rgba(115,246,199,.6)}.event time{font:10px "DM Mono",monospace;color:var(--mint)}.event h3{font-size:1.2rem;margin:5px 0}.event p{color:var(--muted);max-width:700px}
+
+/* TERMINAL */
+.terminal-wrap{display:grid;grid-template-columns:.75fr 1.25fr;gap:15px}
+.console{border:1px solid var(--line);background:#07090f;border-radius:24px;overflow:hidden;box-shadow:var(--shadow)}
+.console-head{display:flex;align-items:center;gap:7px;padding:13px 15px;border-bottom:1px solid var(--line)}.ball{width:8px;height:8px;border-radius:50%;background:#414858}
+.console-title{margin-left:auto;color:#535c6d;font:9px "DM Mono",monospace}
+.console-body{height:320px;padding:20px;font:12px/1.8 "DM Mono",monospace;overflow:auto;color:#c9d0df}
+.console-line{white-space:pre-wrap}.prompt{color:var(--mint)}.cmd-output{color:#8892a7}
+.console-form{display:flex;border-top:1px solid var(--line)}.console-form span{padding:14px;color:var(--mint);font:12px "DM Mono",monospace}.console-form input{flex:1;background:transparent;border:0;outline:0;color:#fff;font:12px "DM Mono",monospace}
+.contact-card{display:flex;flex-direction:column;justify-content:center}.contact-card .big{font-size:clamp(2rem,5vw,4.3rem);letter-spacing:-.07em;line-height:1}.contact-card p{margin-top:18px}.contact-link{display:inline-block;margin-top:25px;color:var(--mint);font:12px "DM Mono",monospace}
+
+/* CONTACT */
+.contact-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:15px}.contact-form{display:grid;gap:11px}.field{width:100%;background:rgba(255,255,255,.025);border:1px solid var(--line);border-radius:14px;padding:14px;color:var(--text);outline:0;transition:.25s}.field:focus{border-color:var(--mint);box-shadow:0 0 0 4px rgba(115,246,199,.05)}textarea.field{min-height:170px;resize:vertical}
+footer{padding:50px 0;border-top:1px solid var(--line);color:var(--muted);font:10px "DM Mono",monospace}.footer-row{display:flex;justify-content:space-between;gap:15px}
+
+/* MODAL */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(14px);display:none;place-items:center;padding:20px;z-index:500}.modal.open{display:grid}.modal-box{width:min(580px,100%);background:var(--panel-solid);border:1px solid var(--line);border-radius:24px;padding:25px;box-shadow:var(--shadow)}.modal-head{display:flex;justify-content:space-between;align-items:center}.modal-head p{color:var(--muted);font-size:.82rem;margin:8px 0 20px}.close{border:1px solid var(--line);background:transparent;color:var(--text);width:34px;height:34px;border-radius:10px}.commands{display:grid;gap:7px}.command{display:flex;justify-content:space-between;border:1px solid var(--line);padding:12px;border-radius:11px;color:var(--muted);cursor:pointer}.command:hover{color:var(--text);border-color:var(--mint)}kbd{font:9px "DM Mono",monospace;border:1px solid var(--line);padding:3px 6px;border-radius:5px}
+
+/* TOAST */
+.toast{position:fixed;right:20px;bottom:20px;background:var(--panel-solid);border:1px solid var(--line);padding:13px 16px;border-radius:13px;z-index:800;transform:translateY(80px);opacity:0;transition:.3s}.toast.show{transform:none;opacity:1}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+ .navlinks{display:none}.menu{display:block}.nav.open .navlinks{display:flex;position:absolute;top:72px;left:0;right:0;flex-direction:column;background:rgba(10,12,19,.96);border:1px solid var(--line);border-radius:16px;padding:8px}.nav.open .navlinks a{padding:12px}
+ .hero-layout,.terminal-wrap,.contact-grid{grid-template-columns:1fr}.hero-visual{height:380px}.hero{padding-top:135px}.orbit{width:290px;height:290px}
+ .stats{grid-template-columns:repeat(2,1fr)}.skills,.projects{grid-template-columns:1fr 1fr}
+}
+@media(max-width:580px){
+ section{padding:90px 0}.container{width:min(100% - 24px,1160px)}.section-head{display:block}.section-head p{margin-top:15px}
+ .stats,.skills,.projects,.about-grid{grid-template-columns:1fr}.hero h1{font-size:clamp(4rem,22vw,7rem)}.hero-visual{height:330px}.orbit{width:245px;height:245px}.core{width:90px;height:90px}.visual-label{font-size:8px}.footer-row{display:block}.footer-row div+div{margin-top:9px}
+}
+</style>
+</head>
+<body>
+<div id="loader"><div class="loader-inner"><div class="loader-logo">kayal<span>.dev</span></div><div class="loader-line"><i></i></div><div class="loader-status">INITIALIZING PORTFOLIO...</div></div></div>
+<canvas id="stars"></canvas><div class="grid"></div><div class="aurora a1"></div><div class="aurora a2"></div><div class="aurora a3"></div><div id="cursorGlow"></div>
+<div id="progress"></div>
+
+<nav class="nav" id="nav">
+ <a class="brand" href="#home">kayal<span>.dev</span></a>
+ <div class="navlinks">
+  <a href="#about">About</a><a href="#skills">Skills</a><a href="#projects">Projects</a><a href="#journey">Journey</a><a href="#terminal">Terminal</a><a href="#contact">Contact</a>
+ </div>
+ <div class="navtools">
+  <button class="tool" id="themeBtn" title="Toggle theme">◐</button>
+  <button class="tool" id="cmdBtn" title="Command palette">⌘K</button>
+  <button class="tool menu" id="menuBtn" title="Menu">☰</button>
+ </div>
+</nav>
+
+<main>
+<section class="hero" id="home">
+ <div class="container hero-layout">
+  <div class="reveal">
+   <div class="availability"><i class="pulse"></i> ONLINE / LEARNING / BUILDING</div>
+   <h1>KAYAL<br><span class="outline">VIZHI</span><br><span class="gradient">.DEV</span></h1>
+   <p class="hero-desc">A student developer exploring cybersecurity, programming and creative web experiences — one project at a time.</p>
+   <div class="actions">
+    <a class="btn primary magnetic" href="#projects">Explore projects ↗</a>
+    <a class="btn magnetic" href="#contact">Contact me</a>
+   </div>
+   <div class="hero-note">SCROLL ↓ &nbsp; / &nbsp; PRESS CTRL + K TO NAVIGATE</div>
+  </div>
+  <div class="hero-visual reveal">
+   <div class="orbit"><div class="core"></div><i class="node n1"></i><i class="node n2"></i><i class="node n3"></i><i class="node n4"></i></div>
+   <div class="visual-label label1">SECURITY // WEB</div><div class="visual-label label2">SYSTEM: ONLINE</div>
+  </div>
+ </div>
+</section>
+
+<section>
+ <div class="container">
+  <div class="stats">
+   <div class="stat reveal"><strong data-count="3">0</strong><span>Projects built</span></div>
+   <div class="stat reveal"><strong data-count="5">0</strong><span>Core certifications</span></div>
+   <div class="stat reveal"><strong>#173</strong><span>Hackathon rank</span></div>
+   <div class="stat reveal"><strong>10</strong><span>Class</span></div>
+  </div>
+ </div>
+</section>
+
+<section id="about">
+ <div class="container">
+  <div class="section-head reveal"><div><div class="eyebrow">01 / ABOUT</div><h2>Curious by default.</h2></div><p>Not just a portfolio. A small digital space for experiments, learning and projects.</p></div>
+  <div class="about-grid">
+   <article class="glass reveal"><h3>How I build</h3><p>I enjoy turning ideas into working interfaces, learning how systems behave and improving projects through experimentation.</p><div class="chips"><span class="chip">Problem solving</span><span class="chip">Web development</span><span class="chip">Security mindset</span></div></article>
+   <article class="glass reveal"><h3>Currently building</h3><p>Browser-based tools, creative web experiments and projects that combine code with useful experiences.</p><div class="chips"><span class="chip">ACTIVE</span><span class="chip">HTML / CSS / JS</span><span class="chip">PYTHON</span></div></article>
+  </div>
+ </div>
+</section>
+
+<section id="skills">
+ <div class="container">
+  <div class="section-head reveal"><div><div class="eyebrow">02 / SKILLS</div><h2>Tools I explore.</h2></div><p>Every project is another chance to understand a technology better.</p></div>
+  <div class="skills">
+   <div class="skill reveal"><div class="skill-head"><b>Python</b><span>90%</span></div><div class="bar"><i style="--w:90%"></i></div></div>
+   <div class="skill reveal"><div class="skill-head"><b>HTML / CSS</b><span>92%</span></div><div class="bar"><i style="--w:92%"></i></div></div>
+   <div class="skill reveal"><div class="skill-head"><b>JavaScript</b><span>82%</span></div><div class="bar"><i style="--w:82%"></i></div></div>
+   <div class="skill reveal"><div class="skill-head"><b>Java</b><span>75%</span></div><div class="bar"><i style="--w:75%"></i></div></div>
+   <div class="skill reveal"><div class="skill-head"><b>Arduino</b><span>72%</span></div><div class="bar"><i style="--w:72%"></i></div></div>
+  </div>
+ </div>
+</section>
+
+<section id="projects">
+ <div class="container">
+  <div class="section-head reveal"><div><div class="eyebrow">03 / PROJECTS</div><h2>Built, tested, learned.</h2></div><p>Hover the cards. Filter the collection. Click a project to inspect its idea.</p></div>
+  <div class="filters reveal"><button class="filter active" data-filter="all">ALL</button><button class="filter" data-filter="web">WEB</button><button class="filter" data-filter="python">PYTHON</button><button class="filter" data-filter="creative">CREATIVE</button></div>
+  <div class="projects">
+   <article class="glass project reveal" data-cat="web creative" data-name="brainflash"><div><div class="project-top"><span class="project-number">01 / BRAINFLASH</span><span>2026</span></div><h3>brainflash</h3><p>A learning-focused project concept for quick study interactions and useful digital tools.</p></div><div class="project-bottom"><span class="chip">LEARNING</span><a class="project-arrow" href="#" onclick="showProject('brainflash');return false">Inspect ↗</a></div></article>
+   <article class="glass project reveal" data-cat="web python" data-name="calcmine"><div><div class="project-top"><span class="project-number">02 / CALCMINE</span><span>2026</span></div><h3>calcmine</h3><p>A compact utility project focused on simple calculations, clean logic and polished interaction.</p></div><div class="project-bottom"><span class="chip">UTILITY</span><a class="project-arrow" href="#" onclick="showProject('calcmine');return false">Inspect ↗</a></div></article>
+   <article class="glass project reveal" data-cat="python" data-name="password checker"><div><div class="project-top"><span class="project-number">03 / SECURITY</span><span>2026</span></div><h3>Password Checker</h3><p>A Python project that checks password strength with practical rules and beginner-friendly logic.</p></div><div class="project-bottom"><span class="chip">SECURITY</span><a class="project-arrow" href="#" onclick="showProject('Password Checker');return false">Inspect ↗</a></div></article>
+  </div>
+ </div>
+</section>
+
+<section id="journey">
+ <div class="container">
+  <div class="section-head reveal"><div><div class="eyebrow">04 / JOURNEY</div><h2>Learning in public.</h2></div><p>Milestones that represent progress, not a finish line.</p></div>
+  <div class="timeline">
+   <div class="event reveal"><time>CLASS 10</time><h3>Strong foundations</h3><p>Building foundations across mathematics, science, social science, English and information technology.</p></div>
+   <div class="event reveal"><time>HACKATHON</time><h3>Rank #173</h3><p>A milestone that added more motivation to keep experimenting and creating.</p></div>
+   <div class="event reveal"><time>CERTIFICATIONS</time><h3>Programming foundations</h3><p>Python, JavaScript, HTML, CSS and Arduino learning milestones.</p></div>
+  </div>
+ </div>
+</section>
+
+<section id="terminal">
+ <div class="container">
+  <div class="section-head reveal"><div><div class="eyebrow">05 / TERMINAL</div><h2>Explore the shell.</h2></div><p>Type <b>help</b> and discover hidden commands.</p></div>
+  <div class="terminal-wrap">
+   <div class="glass contact-card reveal"><div class="eyebrow">KAYAL.DEV</div><div class="big">Code.<br>Learn.<br>Repeat.</div><p>Small projects today become bigger skills tomorrow.</p><a class="contact-link" href="#contact">OPEN CONTACT →</a></div>
+   <div class="console reveal">
+    <div class="console-head"><i class="ball"></i><i class="ball"></i><i class="ball"></i><span class="console-title">kayal@dev — zsh</span></div>
+    <div class="console-body" id="consoleBody"><div class="console-line">Welcome to <span class="prompt">kayal.dev</span>.</div><div class="console-line cmd-output">Type "help" for available commands.</div></div>
+    <form class="console-form" id="terminalForm"><span>kayal@dev:~$</span><input id="terminalInput" autocomplete="off" aria-label="Terminal command"></form>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section id="contact">
+ <div class="container">
+  <div class="section-head reveal"><div><div class="eyebrow">06 / CONTACT</div><h2>Let's build something.</h2></div><p>Send a project idea, feedback or collaboration message.</p></div>
+  <div class="contact-grid">
+   <div class="glass reveal"><h3>Connect</h3><p>Whether it is a new web experiment or a programming idea, start with a message.</p><div class="chips"><span class="chip">KAYAL.DEV</span><span class="chip">DEVELOPER</span><span class="chip">CYBERSECURITY</span></div></div>
+   <form class="glass contact-form reveal" id="contactForm">
+    <input class="field" id="name" placeholder="Your name" required>
+    <input class="field" id="email" type="email" placeholder="Your email" required>
+    <textarea class="field" id="message" placeholder="Tell me about your idea..." required></textarea>
+    <button class="btn primary" type="submit">Open email app ↗</button>
+   </form>
+  </div>
+ </div>
+</section>
+</main>
+
+<footer><div class="container footer-row"><div>© 2026 KAYAL.DEV — KAYAL VIZHI</div><div>Designed & built with HTML · CSS · JavaScript</div></div></footer>
+
+<div class="modal" id="modal">
+ <div class="modal-box">
+  <div class="modal-head"><div><div class="eyebrow">COMMAND PALETTE</div><h3>Navigate KAYAL.DEV</h3><p>Choose a destination.</p></div><button class="close" id="closeModal">×</button></div>
+  <div class="commands">
+   <div class="command" onclick="go('#home')">Home <kbd>01</kbd></div>
+   <div class="command" onclick="go('#about')">About <kbd>02</kbd></div>
+   <div class="command" onclick="go('#skills')">Skills <kbd>03</kbd></div>
+   <div class="command" onclick="go('#projects')">Projects <kbd>04</kbd></div>
+   <div class="command" onclick="go('#journey')">Journey <kbd>05</kbd></div>
+   <div class="command" onclick="go('#terminal')">Terminal <kbd>06</kbd></div>
+   <div class="command" onclick="go('#contact')">Contact <kbd>07</kbd></div>
+  </div>
+ </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+
+window.addEventListener("load",()=>{
+ setTimeout(()=>$("#loader").classList.add("hide"),650);
+});
+
+function toast(msg){
+ const t=$("#toast");t.textContent=msg;t.classList.add("show");
+ clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove("show"),2400);
+}
+
+/* PARTICLES */
+const canvas=$("#stars"),ctx=canvas.getContext("2d");
+let particles=[];
+function resizeCanvas(){canvas.width=innerWidth*devicePixelRatio;canvas.height=innerHeight*devicePixelRatio;ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)}
+function createParticles(){
+ particles=Array.from({length:Math.min(100,Math.floor(innerWidth/12))},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.5+.3,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,a:Math.random()*.55+.15}));
+}
+function drawParticles(){
+ ctx.clearRect(0,0,innerWidth,innerHeight);
+ for(let i=0;i<particles.length;i++){
+  const p=particles[i];p.x+=p.vx;p.y+=p.vy;
+  if(p.x<0)p.x=innerWidth;if(p.x>innerWidth)p.x=0;if(p.y<0)p.y=innerHeight;if(p.y>innerHeight)p.y=0;
+  ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(160,180,205,${p.a})`;ctx.fill();
+  for(let j=i+1;j<particles.length;j++){
+   const q=particles[j],dx=p.x-q.x,dy=p.y-q.y,d=Math.hypot(dx,dy);
+   if(d<105){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle=`rgba(115,246,199,${.06*(1-d/105)})`;ctx.stroke()}
+  }
+ }
+ requestAnimationFrame(drawParticles);
+}
+resizeCanvas();createParticles();drawParticles();addEventListener("resize",()=>{resizeCanvas();createParticles()});
+
+/* CURSOR */
+const glow=$("#cursorGlow");
+addEventListener("pointermove",e=>{glow.style.left=e.clientX+"px";glow.style.top=e.clientY+"px"});
+if(matchMedia("(pointer:fine)").matches){
+ $$(".magnetic").forEach(el=>el.addEventListener("pointermove",e=>{
+   const r=el.getBoundingClientRect(),x=e.clientX-(r.left+r.width/2),y=e.clientY-(r.top+r.height/2);
+   el.style.transform=`translate(${x*.16}px,${y*.16}px)`;
+ }));
+ $$(".magnetic").forEach(el=>el.addEventListener("pointerleave",()=>el.style.transform=""));
+}
+
+/* REVEAL */
+const observer=new IntersectionObserver(entries=>{
+ entries.forEach(entry=>{
+  if(entry.isIntersecting){
+   entry.target.classList.add("show");
+   if(entry.target.matches(".stat strong")&&!entry.target.dataset.done){
+    entry.target.dataset.done="1";const target=+entry.target.dataset.count;if(!target)return;
+    let n=0;const step=Math.max(1,Math.ceil(target/18));
+    const timer=setInterval(()=>{n+=step;if(n>=target){n=target;clearInterval(timer)}entry.target.textContent=n+"+"},45);
+   }
+  }
+ });
+},{threshold:.12});
+$$(".reveal").forEach(el=>observer.observe(el));
+$$(".stat strong").forEach(el=>observer.observe(el));
+
+/* PROJECT TILT */
+if(matchMedia("(pointer:fine)").matches){
+ $$(".project").forEach(card=>card.addEventListener("pointermove",e=>{
+  const r=card.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+  card.style.transform=`perspective(800px) rotateX(${y*-5}deg) rotateY(${x*5}deg) translateY(-4px)`;
+ }));
+ $$(".project").forEach(card=>card.addEventListener("pointerleave",()=>card.style.transform=""));
+}
+
+/* FILTER */
+$$(".filter").forEach(btn=>btn.addEventListener("click",()=>{
+ $$(".filter").forEach(b=>b.classList.remove("active"));btn.classList.add("active");
+ const f=btn.dataset.filter;
+ $$(".project").forEach(card=>{
+  const visible=f==="all"||card.dataset.cat.includes(f);
+  card.style.display=visible?"flex":"none";
+ });
+}));
+
+/* NAV + COMMAND PALETTE */
+$("#menuBtn").addEventListener("click",()=>$("#nav").classList.toggle("open"));
+function openModal(){$("#modal").classList.add("open")}
+function closeModal(){$("#modal").classList.remove("open")}
+function go(id){closeModal();$("#nav").classList.remove("open");document.querySelector(id)?.scrollIntoView({behavior:"smooth"})}
+$("#cmdBtn").addEventListener("click",openModal);$("#closeModal").addEventListener("click",closeModal);
+$("#modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal()});
+document.addEventListener("keydown",e=>{
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();openModal()}
+ if(e.key==="Escape")closeModal();
+});
+
+/* THEME */
+$("#themeBtn").addEventListener("click",()=>{
+ document.body.classList.toggle("light");
+ if(document.body.classList.contains("light")){
+  document.documentElement.style.setProperty("--bg","#f3f6fa");
+  document.documentElement.style.setProperty("--text","#10131a");
+  document.documentElement.style.setProperty("--muted","#5e6676");
+  document.documentElement.style.setProperty("--line","rgba(0,0,0,.1)");
+  document.querySelector(".nav").style.background="rgba(255,255,255,.7)";
+  toast("Light theme enabled");
+ }else{
+  document.documentElement.style.setProperty("--bg","#05060a");
+  document.documentElement.style.setProperty("--text","#f6f7fb");
+  document.documentElement.style.setProperty("--muted","#929aae");
+  document.documentElement.style.setProperty("--line","rgba(255,255,255,.1)");
+  document.querySelector(".nav").style.background="rgba(7,9,15,.62)";
+  toast("Dark theme enabled");
+ }
+});
+
+/* SCROLL PROGRESS + ACTIVE NAV */
+addEventListener("scroll",()=>{
+ const max=document.documentElement.scrollHeight-innerHeight;
+ $("#progress").style.cssText=`position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--mint),var(--violet));z-index:1000;width:${scrollY/max*100}%;`;
+ const sections=[...document.querySelectorAll("main section[id]")];
+ let current="home";
+ sections.forEach(s=>{if(scrollY>=s.offsetTop-180)current=s.id});
+ $$(".navlinks a").forEach(a=>a.classList.toggle("active",a.getAttribute("href")==="#"+current));
+});
+
+/* TERMINAL */
+const terminalCommands={
+ help:["Available commands:","about    → about Kayal","skills   → list skills","projects → show projects","status   → system status","contact  → contact section","clear    → clear terminal"],
+ about:["KAYAL VIZHI","Student developer exploring cybersecurity, programming and creative web experiences."],
+ skills:["Python","HTML / CSS","JavaScript","Java","Cybersecurity","Arduino"],
+ projects:["brainflash","calcmine","Password Checker"],
+ status:["SYSTEM: ONLINE","PORTFOLIO: ACTIVE","MODE: LEARNING","IDEAS: UNLIMITED"],
+ contact:["Scroll to #contact or type: open contact"],
+ "open contact":["Opening contact section..."]
+};
+$("#terminalForm").addEventListener("submit",e=>{
+ e.preventDefault();
+ const input=$("#terminalInput"),cmd=input.value.trim().toLowerCase(),body=$("#consoleBody");
+ if(!cmd)return;
+ addLine(`<span class="prompt">kayal@dev:~$</span> ${escapeHtml(cmd)}`);
+ if(cmd==="clear"){body.innerHTML="";input.value="";return}
+ const result=terminalCommands[cmd]||["Command not found.","Type <span class='prompt'>help</span> to see available commands."];
+ result.forEach(x=>addLine(`<span class="cmd-output">${x}</span>`));
+ if(cmd==="open contact")setTimeout(()=>go("#contact"),500);
+ body.scrollTop=body.scrollHeight;input.value="";
+});
+function addLine(text){const d=document.createElement("div");d.className="console-line";d.innerHTML=text;$("#consoleBody").appendChild(d)}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+
+/* PROJECT INFO */
+function showProject(name){
+ const descriptions={
+  brainflash:"A learning-focused web project concept for quick study interactions and useful digital tools.",
+  calcmine:"A compact utility project focused on calculations, clean logic and polished interaction.",
+  "Password Checker":"A Python security project that checks password strength with practical rules."
+ };
+ alert(name+"\\n\\n"+descriptions[name]);
+}
+
+/* CONTACT */
+$("#contactForm").addEventListener("submit",e=>{
+ e.preventDefault();
+ const name=$("#name").value.trim(),email=$("#email").value.trim(),message=$("#message").value.trim();
+ const subject=encodeURIComponent("KAYAL.DEV — Project / Collaboration");
+ const body=encodeURIComponent(`Hi Kayal,\\n\\n${message}\\n\\nName: ${name}\\nEmail: ${email}`);
+ window.location.href=`mailto:?subject=${subject}&body=${body}`;
+ toast("Opening your email application...");
+});
+</script>
+</body>
+</html>
+'''
+
+path = Path("/mnt/data/index.html")
+path.write_text(html, encoding="utf-8")
+print(path)
